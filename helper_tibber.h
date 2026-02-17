@@ -11,8 +11,8 @@ struct tibber_price {
 //Prices for the next 24 hours
 struct tibber_prices {
   tibber_price price[24];
-  int minimumPrice = 1000;  //Preis als int in zehntel-Cent
-  int maximumPrice = 1;  //Preis als int in zehntel-Cent
+  int minimumPrice = 2147483647;  //Preis als int in zehntel-Cent
+  int maximumPrice = 0;  //Preis als int in zehntel-Cent
 };
 
 // Prices as global variable
@@ -93,16 +93,16 @@ void parseTibberJson(DynamicJsonDocument jsonDoc) {
       // Store the level as an int        
       switch (tmpLevel[0]) {
         case 'N': 
-          tmpPrice.level = 3;
-        break;
-        case 'E': 
-          tmpPrice.level = 4;
-        break;
-        case 'C': 
           tmpPrice.level = 2;
         break;
+        case 'E': 
+          tmpPrice.level = 3;
+        break;
+        case 'C': 
+          tmpPrice.level = 1;
+        break;
         case 'V': 
-          tmpPrice.level = (tmpLevel[5] = 'E') ? 5: 1;
+          tmpPrice.level = (tmpLevel[5] = 'E') ? 4: 0;
         break;
       }
       tmpPrice.isNull = false;
