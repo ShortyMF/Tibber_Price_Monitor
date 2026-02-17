@@ -23,23 +23,26 @@
 //   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
 
 Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(8, 8, D3,
-  NEO_MATRIX_BOTTOM     + NEO_MATRIX_LEFT +
-  NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG,
-  NEO_GRB            + NEO_KHZ800);
-
-
-//const uint16_t colors[] = {
-//  matrix.Color(0, 255, 0), matrix.Color(128, 255, 0), matrix.Color(255, 255, 0), matrix.Color(255, 128, 0), matrix.Color(255, 0, 0) };
+  NEO_MATRIX_BOTTOM     + NEO_MATRIX_RIGHT +
+  NEO_MATRIX_ROWS + NEO_MATRIX_PROGRESSIVE,
+  NEO_RGB            + NEO_KHZ800);
 
 const uint16_t colors[] = {
-  matrix.Color(0, 255, 0), matrix.Color(85, 170, 0), matrix.Color(105, 140, 0), matrix.Color(128, 128, 0), matrix.Color(255, 0, 0) };
+  matrix.Color(255, 0, 0),   // Red
+  matrix.Color(170, 85, 0),  // Warm orange
+  matrix.Color(140, 105, 0), // Dark yellow
+  matrix.Color(128, 128, 0), // Olive yellow (50% red + 50% green)
+  matrix.Color(0, 255, 0)    // Green
+  };
 
 bool firstBlink;
 
 void matrixInitialize() {
   Serial.println("Initialize Matrix");
   matrix.begin();
+  matrix.setRotation(0);
   matrix.setBrightness(20);
+  matrix.fillScreen(0);
   firstBlink = true;
 }
 
@@ -47,8 +50,9 @@ int x    = matrix.width();
 int pass = 0;
 
 void matrixLine(int reihe, int hoehe, uint16_t farbe) {
-  matrix.writeLine( reihe,  0,  reihe,  hoehe-1,  farbe);
-  //matrix.writeLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color)
+  for(int y=0; y < hoehe; y++) {
+  matrix.drawPixel(reihe, 7 - y, farbe);
+  }
 }
 
 void matrixShow() {
@@ -85,9 +89,14 @@ void matrixShowTibber() {
         hoehe = 8;
       }
 
-      
+      // --- NEGATIVE PRICE CHECK ---
+      uint16_t color = colors[PRICES.price[i].level];
+      if (PRICES.price[i].price < 0) {
+        color = matrix.Color(0, 255, 255); // Changes the colour to cyan if the price is negative
+      }
+
       if (i!=0 || firstBlink) {
-        matrixLine(i,hoehe, colors[PRICES.price[i].level]);
+        matrixLine(i,hoehe, color);
       }
     }
   }
